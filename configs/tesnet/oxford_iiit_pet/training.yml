@@ -1,0 +1,79 @@
+param_groups:
+  backbone: extractor.convnet
+  # backbone:
+  #   start: extractor.convnet.layer2
+  #   stop: extractor.convnet.layer4
+  addons: extractor.add_on
+  prototypes: classifier.prototypes
+  last_layer: classifier.last_layer
+
+optimizers:
+  # Optimizer used during the first epochs
+  warmup_optimizer:
+    type: AdamW
+    groups:
+      addons:
+        lr: 0.003
+        weight_decay: 0.01
+      prototypes:
+        lr: 0.003
+
+  # Main optimizer
+  joint_optimizer:
+    type: AdamW
+    groups:
+      backbone:
+        lr: 0.0001
+        weight_decay: 0.01
+      addons:
+        lr: 0.003
+        weight_decay: 0.01
+      prototypes:
+        lr: 0.003
+    scheduler:
+      type: MultiStepLR
+      params:
+        milestones: [40, 45]
+        gamma: 0.3
+
+  # Optimizer used during the first epochs
+  last_layer_optimizer:
+    type: AdamW
+    groups:
+      last_layer:
+        lr: 0.0001
+
+num_epochs: 30
+
+periods:
+  warmup:
+    epoch_range: [ 0, 9 ] # First and last epoch (included)
+    freeze: [ backbone, last_layer ]
+    optimizers: warmup_optimizer
+  main_training:
+    epoch_range: [ 10, 29 ]
+    freeze: last_layer
+    optimizers: joint_optimizer
+
+auxiliary_info:
+  loss_coefficients:
+    clustering: 0.8
+    # separation: -0.08
+    separability: -0.08
+    # New term. Positive coefficient to minimize non-orthogonality.
+    # New term. NEGATIVE coefficient to MAXIMIZE subspace distance.
+    subspace_separation: -1.0e-7 # A small negative value is a good starting point
+    regularization: 0.001
+  projection_config:
+      start_epoch: 10 # First epoch for prototype projection
+      frequency: 10 # Projection frequency (in number of epochs)
+      num_ft_epochs: 7 # Number of fine-tuning epochs on the last layer
+  # dynamic_stage_switching:
+  #   enable: false
+    # require_convergence: true
+    # convergence_patience: 5
+    # convergence_threshold: 0.0001
+    # min_epoch: 10
+    # finetune_epochs: 20
+    # finetune_period_name: "projection_finetune"
+

@@ -1,0 +1,85 @@
+param_groups:
+  backbone: extractor.convnet
+  addons: extractor.add_on
+  prototypes: classifier.prototypes
+  covariances: classifier.similarity_layer  # <-- NEW: Register the Mahalanobis parameters
+  last_layer: classifier.last_layer
+
+optimizers:
+  # Optimizer used during the first epochs
+  warmup_optimizer:
+    type: AdamW
+    groups:
+      addons:
+        lr: 0.003
+        weight_decay: 0.001
+      prototypes:
+        lr: 0.003
+        weight_decay: 0.0
+      covariances:                          # <-- NEW: Learn geometry during warmup
+        lr: 0.001
+        weight_decay: 0.0
+
+  # Main optimizer
+  joint_optimizer:
+    type: AdamW
+    groups:
+      backbone:
+        lr: 0.00002 # Drop this drastically. Even 0.00002 might be too high for a batch size of 32
+        weight_decay: 1.0e-5
+      addons:
+        lr: 0.003
+        weight_decay: 3.0e-4
+      prototypes:
+        lr: 0.003
+        weight_decay: 0.0
+      covariances:                          # <-- NEW: Fine-tune geometry during main training
+        lr: 0.0001
+        weight_decay: 0.0
+    scheduler:
+      type: CosineAnnealingLR
+      params:
+        T_max: 190 # The number of main_training epochs (200 total - 10 warmup)
+        eta_min: 1.0e-7 # The minimum learning rate it will hit at the very end
+
+  # Optimizer used during the first epochs
+  last_layer_optimizer:
+    type: AdamW
+    groups:
+      last_layer:
+        lr: 0.003
+      covariances:                          # <-- NEW: Re-calibrate covariances post-projection
+        lr: 0.0001
+        weight_decay: 0.0
+    scheduler:
+      type: StepLR
+      params:
+        step_size: 5
+        gamma: 0.1
+
+num_epochs: 200
+
+periods:
+  warmup:
+    epoch_range: [ 0, 9 ] # First and last epoch (included)
+    freeze: [ backbone, last_layer ]
+    optimizers: warmup_optimizer
+  main_training:
+    epoch_range: [ 10, 199 ]
+    freeze: last_layer
+    optimizers: joint_optimizer
+
+auxiliary_info:
+  loss_coefficients:
+    clustering: 0.8
+    separability: -0.08
+    regularization: 0.01 # Add a touch of regularization to prevent prototype collapse, but keep it low to preserve interpretability
+  projection_config:
+    start_epoch: 20 # Delayed from 10 to give the backbone time to learn the augmented data
+    frequency: 40 # Increased from 15 to space out the massive computational cost
+    num_ft_epochs: 10 #
+
+epilogue:
+  num_fine_tuning_epochs: 15
+  num_nearest_patches: 1
+  pruning_threshold: 0

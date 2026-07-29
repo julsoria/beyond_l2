@@ -1,0 +1,171 @@
+train_set:
+  module: torchvision.datasets.oxford_iiit_pet
+  name: OxfordIIITPet
+  partition:
+  - 0.0
+  - 0.8
+  partition_seed: 42
+  params:
+    root: data
+    split: trainval
+    download: true
+    transform:
+      random_rotation:
+        type: RandomRotation
+        params:
+          degrees: 15
+      resize:
+        type: Resize
+        params:
+          size:
+          - 256
+          - 256
+      center_crop:
+        type: CenterCrop
+        params:
+          size:
+          - 224
+          - 224
+      random_horizontal_flip:
+        type: RandomHorizontalFlip
+        params:
+          p: 0.5
+      random_color_jitter:
+        type: ColorJitter
+        params:
+          brightness: 0.2
+          contrast: 0.2
+          saturation: 0.2
+          hue: 0.1
+      to_tensor:
+        type: ToTensor
+      normalize:
+        type: Normalize
+        params:
+          mean:
+          - 0.485
+          - 0.456
+          - 0.406
+          std:
+          - 0.229
+          - 0.224
+          - 0.225
+  batch_size: 64
+  shuffle: true
+  num_workers: 8
+projection_set:
+  module: torchvision.datasets.oxford_iiit_pet
+  name: OxfordIIITPet
+  partition:
+  - 0.0
+  - 0.8
+  partition_seed: 42
+  params:
+    root: data
+    split: trainval
+    download: true
+    transform:
+      resize:
+        type: Resize
+        params:
+          size:
+          - 256
+          - 256
+      center_crop:
+        type: CenterCrop
+        params:
+          size:
+          - 224
+          - 224
+      to_tensor:
+        type: ToTensor
+      normalize:
+        type: Normalize
+        params:
+          mean:
+          - 0.485
+          - 0.456
+          - 0.406
+          std:
+          - 0.229
+          - 0.224
+          - 0.225
+  batch_size: 64
+  shuffle: false
+  num_workers: 8
+val_set:
+  module: torchvision.datasets.oxford_iiit_pet
+  name: OxfordIIITPet
+  partition:
+  - 0.8
+  - 1.0
+  partition_seed: 42
+  params:
+    root: data
+    split: trainval
+    download: true
+    transform:
+      resize:
+        type: Resize
+        params:
+          size:
+          - 256
+          - 256
+      center_crop:
+        type: CenterCrop
+        params:
+          size:
+          - 224
+          - 224
+      to_tensor:
+        type: ToTensor
+      normalize:
+        type: Normalize
+        params:
+          mean:
+          - 0.485
+          - 0.456
+          - 0.406
+          std:
+          - 0.229
+          - 0.224
+          - 0.225
+  batch_size: 32
+  shuffle: false
+  num_workers: 8
+test_set:
+  module: torchvision.datasets.oxford_iiit_pet
+  name: OxfordIIITPet
+  params:
+    root: data
+    split: test
+    download: true
+    transform:
+      resize:
+        type: Resize
+        params:
+          size:
+          - 256
+          - 256
+      center_crop:
+        type: CenterCrop
+        params:
+          size:
+          - 224
+          - 224
+      to_tensor:
+        type: ToTensor
+      normalize:
+        type: Normalize
+        params:
+          mean:
+          - 0.485
+          - 0.456
+          - 0.406
+          std:
+          - 0.229
+          - 0.224
+          - 0.225
+  batch_size: 64
+  shuffle: true
+  num_workers: 4

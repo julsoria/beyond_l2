@@ -1,0 +1,54 @@
+top_arch:
+  module: cabrnet.archs.protopnet.model
+  name: ProtoPNet
+
+extractor: # How to build the feature extractor
+  backbone:
+    arch: resnet50
+    layer: layer4
+    weights: examples/pretrained_conv_extractors/resnet50_inat.pth
+    # weights: IMAGENET1K_V1 # or null, or path/to/state.pth
+  add_on:
+    init_mode: PROTOPNET
+    conv1:
+      type: Conv2d
+      params:
+        out_channels: 128
+        kernel_size: 1
+        bias: True
+    bn1:
+      type: BatchNorm2d
+      params:
+        num_features: 128
+        eps: 1.0e-05
+        momentum: 0.1
+        affine: true
+        track_running_stats: true
+    act1:
+    #   type: ReLU
+    # conv2:
+    #   type: Conv2d
+    #   params:
+    #     out_channels: 128
+    #     kernel_size: 1
+    #     bias: True
+    # act2:
+      type: Sigmoid
+
+similarity:
+  name: ProtoPNetSimilarity
+
+# similarity:
+#   name: MahalanobisLogDistance # Choose between "MahalanobisLogDistance" and "MahalanobisLogDensity"
+#   params:
+#     cov_type: "diagonal"  # Choose between "isotropic", "diagonal", or "general"
+#     stability_factor: 1.0e-4
+
+classifier:
+  module: cabrnet.archs.protopnet.decision
+  name: ProtoPNetClassifier
+  params:
+    num_classes: 200
+    num_proto_per_class: 10
+    proto_init_mode: UNIFORM
+    compatibility_mode: False

@@ -1,0 +1,149 @@
+train_set:
+  module: torchvision.datasets.flowers102
+  name: Flowers102
+  params:
+    root: data
+    split: train
+    download: true
+    transform:
+      # Replace Resize and RandomCrop with RandomResizedCrop.
+      # This is now the primary source of geometric augmentation.
+      random_resized_crop:
+        type: RandomResizedCrop
+        params:
+          size: [128, 128]  # The final output size
+          scale: [0.7, 1.0]   # Crop between 20% and 100% of the image area
+          ratio: [0.9, 1.1]  # Aspect ratio range
+          # interpolation: BILINEAR
+          antialias: True
+
+      hflip:
+        module: torchvision.transforms
+        type: RandomHorizontalFlip
+
+      # color_jitter:
+      #   module: torchvision.transforms
+      #   type: ColorJitter
+      #   params:
+      #     brightness: 0.4
+      #     contrast: 0.4
+      #     saturation: 0.4
+      #     hue: 0.1
+      
+      to_tensor:
+        type: ToTensor
+      convert_dtype:
+        type: ConvertImageDtype
+        params:
+          dtype: torch.float32
+      normalize:
+        type: Normalize
+        params:
+          mean: [0.475, 0.394, 0.3079]
+          std: [0.2218, 0.2075, 0.2036]
+
+  batch_size: 100
+  shuffle: True
+  num_workers: 2
+
+projection_set:
+  module: torchvision.datasets.flowers102
+  name: Flowers102
+  params:
+    root: data
+    split: val
+    download: true
+    transform:
+      convert:
+        type: PILToTensor
+      resize:
+        type: Resize
+        params:
+          size: [128, 128]
+      center_crop:
+        type: CenterCrop
+        params:
+          size: [128, 128]
+      convert_dtype:
+        type: ConvertImageDtype
+        params:
+          dtype: torch.float32
+      # to_tensor:
+      #   type: ToTensor
+      normalize:
+        type: Normalize
+        params:
+          mean: [0.4750, 0.3940, 0.3079]
+          std: [0.2218, 0.2075, 0.2036]
+  batch_size: 200
+  shuffle: False
+  num_workers: 2
+
+val_set:
+  module: torchvision.datasets.flowers102
+  name: Flowers102
+  params:
+    root: data
+    split: val
+    download: true
+    transform:
+      convert:
+        type: PILToTensor
+      resize:
+        type: Resize
+        params:
+          size: [128, 128]
+      center_crop:
+        type: CenterCrop
+        params:
+          size: [128, 128]
+      convert_dtype:
+        type: ConvertImageDtype
+        params:
+          dtype: torch.float32
+      # to_tensor:
+      #   type: ToTensor
+      normalize:
+        type: Normalize
+        params:
+          mean: [0.4750, 0.3940, 0.3079]
+          std: [0.2218, 0.2075, 0.2036]
+  batch_size: 200
+  shuffle: False
+  num_workers: 2
+
+test_set:
+  module: torchvision.datasets.flowers102
+  name: Flowers102
+  params:
+    root: data
+    split: test
+    download: true
+    transform:
+      convert:
+        type: PILToTensor
+      resize:
+        type: Resize
+        params:
+          size: [128, 128]
+      center_crop:
+        type: CenterCrop
+        params:
+          size: [128, 128]
+      convert_dtype:
+        type: ConvertImageDtype
+        params:
+          dtype: torch.float32
+      # to_tensor:
+      #   type: ToTensor
+      normalize:
+        type: Normalize
+        params:
+          mean: [0.4750, 0.3940, 0.3079]
+          std: [0.2218, 0.2075, 0.2036]
+  batch_size: 500
+  shuffle: False
+  num_workers: 2
+
+# Note: The above code is adapted to the Flowers102 dataset, which may have different preprocessing steps compared to the MNIST and Stanford Cars datasets.
+

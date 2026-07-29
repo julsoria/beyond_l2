@@ -1,0 +1,66 @@
+top_arch:
+  module: beyond_l2_ext.tesnet.model
+  name: TesNet
+
+extractor: # How to build the feature extractor
+  backbone:
+    # arch: resnet18
+    # arch: resnet50
+    # layer: layer4
+    arch: convnext_tiny
+    layer: features
+    weights: IMAGENET1K_V1
+    # weights: examples/pretrained_conv_extractors/resnet50_inat.pth
+  add_on:
+    init_mode: XAVIER
+    # dropout1:
+    #   type: Dropout
+    #   params:
+    #     p: 0.25
+    conv1:
+      type: Conv2d # nn.Module name
+      params:
+        out_channels: 128
+        kernel_size: 1
+        bias: False
+    bn1:
+      type: BatchNorm2d
+      params:
+        num_features: 128
+        eps: 0.00001
+        momentum: 0.1
+        affine: True
+        track_running_stats: True
+    # relu1:
+    #   type: ReLU
+    #   params:
+    #     inplace: True
+    # conv2:
+    #   type: Conv2d # nn.Module name
+    #   params:
+    #     out_channels: 32
+    #     kernel_size: 1
+    #     bias: False
+    # bn2:
+    #   type: BatchNorm2d
+    #   params:
+    #     num_features: 32
+    #     eps: 0.00001
+    #     momentum: 0.1
+    #     affine: True
+    #     track_running_stats: True
+    
+    act1:
+      # type: Sigmoid
+      type: Tanh
+
+similarity:
+  name: CosineSimilarity
+
+classifier: # How to compute the decision from the features
+  module: beyond_l2_ext.tesnet.decision
+  name: TesNetClassifier
+  params:
+    num_classes: 102
+    num_proto_per_class: 10
+    proto_init_mode: SHIFTED_NORMAL

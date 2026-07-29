@@ -1,0 +1,34 @@
+top_arch:
+  module: cabrnet.archs.protopool.model
+  name: ProtoPool
+extractor:
+  backbone:
+    arch: resnet50
+    layer: layer4
+    weights: examples/pretrained_conv_extractors/resnet50_inat.pth
+  add_on:
+    init_mode: XAVIER
+    pool:
+      type: AdaptiveAvgPool2d
+      params:
+        output_size:
+        - 3
+        - 3
+    conv1:
+      type: Conv2d
+      params:
+        bias: false
+        kernel_size: 1
+        out_channels: 256
+    act1:
+      type: Sigmoid
+similarity:
+  name: ProtoPNetSimilarity
+classifier:
+  module: cabrnet.archs.protopool.decision
+  name: ProtoPoolClassifier
+  params:
+    num_slots_per_class: 10
+    proto_init_mode: SHIFTED_NORMAL
+    num_prototypes: 220
+    num_classes: 200
