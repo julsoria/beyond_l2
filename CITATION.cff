@@ -1,0 +1,35 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite the paper below."
+title: "Beyond L2: Generalizing Abductive Latent Explanations to Diverse Prototype-Based Architectures"
+authors:
+  - family-names: Soria
+    given-names: Jules
+  - family-names: Grastien
+    given-names: Alban
+  - family-names: Xu-Darme
+    given-names: Romain
+  - family-names: Girard-Satabin
+    given-names: Julien
+  - family-names: Chihani
+    given-names: Zakaria
+  - family-names: Cancila
+    given-names: Daniela
+preferred-citation:
+  type: conference-paper
+  title: "Beyond L2: Generalizing Abductive Latent Explanations to Diverse Prototype-Based Architectures"
+  authors:
+    - family-names: Soria
+      given-names: Jules
+    - family-names: Grastien
+      given-names: Alban
+    - family-names: Xu-Darme
+      given-names: Romain
+    - family-names: Girard-Satabin
+      given-names: Julien
+    - family-names: Chihani
+      given-names: Zakaria
+    - family-names: Cancila
+      given-names: Daniela
+  conference:
+    name: "ECML PKDD"
+  year: 2026
