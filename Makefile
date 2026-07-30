@@ -1,4 +1,4 @@
-.PHONY: install train-% explain-tesnet-cosine explain-pipnet-simplex explain-gaussian-isotropic-log clean-smoke
+.PHONY: install train-% explain-tesnet-cosine explain-pipnet-simplex explain-gaussian-isotropic-log
 
 install:
 	pip install -e .
@@ -30,6 +30,3 @@ explain-pipnet-simplex:
 explain-gaussian-isotropic-log:
 	python explain/run_formal_exp.py --paradigm isotropic_log --data flowers102 --arch protopnet_gaussian_iso \
 		--config runs/protopnet_gaussian_iso_flowers102
-
-clean-smoke:
-	rm -rf .smoketest
