@@ -1,5 +1,10 @@
-.PHONY: install train-% explain-tesnet-cosine explain-pipnet-simplex explain-gaussian-isotropic-log
+.PHONY: install setup-cabrnet train-% explain-tesnet-cosine explain-pipnet-simplex explain-gaussian-isotropic-log
 
+# Clones and pins CaBRNet from GitHub, then installs it plus this repo's plugin.
+setup-cabrnet:
+	./scripts/setup_cabrnet.sh
+
+# Use if CaBRNet is already installed some other way.
 install:
 	pip install -e .
 

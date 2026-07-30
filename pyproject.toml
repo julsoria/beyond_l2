@@ -18,7 +18,7 @@ readme = "README.md"
 requires-python = ">=3.10,<3.13"
 license = { text = "LGPL-2.1-or-later" }
 dependencies = [
-    "cabrnet>=1.2",
+    "cabrnet==1.2",
     "torch>=2.0.0",
     "torchvision>=0.13.0",
     "numpy>=1.19.5",
