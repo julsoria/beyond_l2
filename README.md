@@ -1,70 +1,83 @@
 # Beyond L2
 
-Code accompanying **"Beyond $L_2$: Generalizing Abductive Latent Explanations to Diverse
+Code for **"Beyond $L_2$: Generalizing Abductive Latent Explanations to Diverse
 Prototype-Based Architectures"** (ECML PKDD 2026).
 
 Abductive Latent Explanations (ALE) compute formal, subset-minimal guarantees on the
 predictions of prototype-based networks by bounding similarity/activation values in the
-latent space. The original ALE framework only handled Euclidean ($L_2$) similarity. This
+latent space. The original ALE framework only handled Euclidean ($L_2$) similarity; this
 repository extends it to five paradigms, each targeting a different family of prototype
 architectures:
 
-| Paradigm(s) | Targets | Idea |
+| Paradigm(s) (`--paradigm`) | `--arch` | Idea |
 |---|---|---|
-| `top_k` | any architecture | Greedily reports the $k$ most-activated prototypes needed to guarantee the prediction. |
-| `triangle`, `hypersphere` | ProtoPNet, ProtoPool (Euclidean) | Original ALE: Euclidean Triangle Inequality / Hypersphere Intersection Approximation (HIA). |
-| `cosine`, `cosine_hypersphere` | TesNet (cosine similarity) | Angular Triangle Inequality and Spherical Cap Intersection Approximation. |
-| `simplex`, `pip_sparse` | PIP-Net | Bounds derived from the softmax spatial-simplex constraint and PIP-Net's sparse non-negative decision head. |
-| `isotropic_gaussian[_hypersphere]`, `isotropic_log[_hypersphere]` | Isotropic Gaussian ProtoPNet | Maps any monotonic similarity function to a universal Euclidean space, reuses the base Euclidean HIA/TI, maps bounds back. |
+| `top_k` | any | Greedily reports the $k$ most-activated prototypes needed to guarantee the prediction. |
+| `triangle`, `hypersphere` | `protopnet`, `protopool` | Original ALE: Euclidean Triangle Inequality / Hypersphere Intersection Approximation (HIA). |
+| `cosine`, `cosine_hypersphere` | `tesnet` | Angular Triangle Inequality and Spherical Cap Intersection Approximation. |
+| `simplex`, `pip_sparse` | `pipnet` | Bounds from the softmax spatial-simplex constraint and PIP-Net's sparse non-negative decision head. |
+| `isotropic_gaussian[_hypersphere]`, `isotropic_log[_hypersphere]` | `protopnet_gaussian_iso` | Maps any monotonic similarity to a universal Euclidean space, reuses the base HIA/TI, maps bounds back. |
 
 Focal Similarity (ProtoPool's max-minus-average pooling) is handled inside the base
-`triangle`/`hypersphere` paradigms rather than as a separate one -- see
-`explain/subset_minimal_axp.py`.
+`triangle`/`hypersphere` paradigms, not as a separate one -- see `explain/subset_minimal_axp.py`.
 
 This code is built on top of [CaBRNet](https://github.com/aiser-team/cabrnet), an
 open-source library for prototype-based classifiers. TesNet and the Isotropic Gaussian
 similarity layer are not (yet) part of the public CaBRNet package, so this repository
-ships them as a small plugin package, `beyond_l2_ext`, loaded by CaBRNet's own
-configuration-driven plugin mechanism -- no fork of CaBRNet is required.
+ships them as a small plugin package, `beyond_l2_ext`, loaded through CaBRNet's own
+configuration-driven `module`/`name` mechanism -- no fork of CaBRNet is required.
 
 ## Install
 
 ```bash
-python -m venv .venv && source .venv/bin/activate
-pip install -e .
+git clone https://github.com/julsoria/beyond_l2
+cd beyond_l2
+python3 -m venv .venv && source .venv/bin/activate
+./scripts/setup_cabrnet.sh
 ```
 
-This pulls in `cabrnet` (PyPI) plus `torch`/`torchvision`/`pandas`/`scikit-learn`/etc.,
-and installs `beyond_l2_ext` in editable mode so CaBRNet's config loader can import it by
-module path (`beyond_l2_ext.similarities`, `beyond_l2_ext.tesnet.model`, ...).
+`setup_cabrnet.sh` clones CaBRNet straight from its public GitHub repository, pinned to
+the exact commit behind the published `1.2` release, and installs it plus `beyond_l2_ext`
+in editable mode. It requires Python 3.10-3.12 (CaBRNet 1.2's own constraint) and refuses
+to run outside that range rather than silently resolving an older CaBRNet version.
 
 ## Repository layout
 
 ```text
-beyond_l2_ext/          Plugin package: Isotropic Gaussian similarity layers, TesNet
-                        architecture, and a ProtoPNetClassifier subclass exposing
-                        covariances -- everything CaBRNet's public package is missing.
-explain/                The ALE explanation engine (flat scripts, run from this directory
-                        or with it on PYTHONPATH):
-  subset_minimal_axp.py   Core engine: base Euclidean Triangle Inequality / HIA, Top-k.
-  extended_explainers.py  Cosine, Isotropic Gaussian, and PIP-Net-specific explainers.
-  run_formal_exp.py       CLI driver: trains nothing, loads a checkpoint and runs a
-                          chosen paradigm over a set of test-set indices.
-configs/                Per-architecture, per-dataset {model_arch,dataset,training}.yml,
-                        taken from the checkpoints actually used to produce the paper's
-                        results (protopnet, tesnet, pipnet, protopool, protopnet_gaussian_iso).
-scripts/summarize_results.py   Aggregates `{paradigm}_explanations.csv` files into
-                        per-file mean/std tables (Exp Size, Runtime, accuracy).
-tests/                  Unit tests for the explainer classes (paradigm validation,
-                        explanation-dict shape, ProtoPool weight compression).
+beyond_l2/
+├── beyond_l2_ext/                  CaBRNet plugin package
+│   ├── similarities.py               Isotropic Gaussian similarity layers
+│   ├── protopnet_gaussian.py          ProtoPNetClassifier subclass exposing covariances
+│   └── tesnet/                        TesNet architecture (model.py, decision.py)
+├── explain/                        The ALE explanation engine (flat scripts)
+│   ├── subset_minimal_axp.py         Core engine: Euclidean Triangle Inequality / HIA, Top-k
+│   ├── extended_explainers.py        Cosine, Isotropic Gaussian, PIP-Net explainers
+│   ├── extra_utils.py                Small shared helpers
+│   └── run_formal_exp.py             CLI driver: loads a checkpoint, runs one paradigm
+├── configs/                        {dataset,model_arch,training}.yml per checkpoint used
+│   ├── protopnet/{cub200,flowers102,oxford_iiit_pet}/
+│   ├── tesnet/{cub200,flowers102,oxford_iiit_pet}/
+│   ├── pipnet/{cub200,flowers102,oxford_iiit_pet}/
+│   ├── protopool/cub200/             only dataset ProtoPool trained on (see Datasets)
+│   └── protopnet_gaussian_iso/{cub200,flowers102,oxford_iiit_pet}/
+├── scripts/
+│   ├── setup_cabrnet.sh              Clones + pins CaBRNet from GitHub, installs everything
+│   └── summarize_results.py          Aggregates *_explanations.csv into mean/std tables
+├── checkpoints/README.md           Checkpoints aren't committed here (see Datasets)
+└── pyproject.toml, Makefile, environment.yml, LICENSE, CITATION.cff
 ```
 
 ## Datasets
 
-Oxford Flowers 102 and Oxford-IIIT Pet are fetched automatically by torchvision
+Oxford Flowers-102 and Oxford-IIIT Pet are fetched automatically by torchvision
 (`download: true` in the vendored `dataset.yml` files). CUB-200-2011 must be downloaded
 manually (see [the CUB-200-2011 homepage](https://www.vision.caltech.edu/datasets/cub_200_2011/))
 and extracted so that `dataset.yml`'s `root` points at it.
+
+**ProtoPool** is only provided for CUB-200: the paper reports that it could not be
+trained successfully on Flowers/Pets with this codebase.
+
+Trained checkpoints (~100-300MB each) are not committed to this repository -- see
+`checkpoints/README.md`.
 
 ## Train an architecture
 
@@ -74,78 +87,40 @@ cabrnet train --device cuda:0 --seed 42 \
   --output-dir runs/tesnet_flowers102
 ```
 
-Repeat for `configs/{protopnet,pipnet,protopool,protopnet_gaussian_iso}/<dataset>`. Note:
+Repeat for any `configs/<arch>/<dataset>` combination (see the layout above). Two notes:
 
-- **ProtoPool** is only provided for CUB-200: the paper reports that it could not be
-  trained successfully on Flowers/Pets with this codebase.
-- The vendored `model_arch.yml` files reference the exact backbone/similarity/classifier
-  configuration used for the paper's checkpoints. A few reference a local pretrained
-  backbone file (`examples/pretrained_conv_extractors/resnet50_inat.pth` from the
-  CaBRNet repository) that isn't bundled here; CaBRNet tolerates its absence when you are
-  about to load a full checkpoint on top (see "Explain" below) and will simply skip that
-  initial weight-loading step, but a *fresh* training run needs either that file or an
-  edit to `weights:` (e.g. `IMAGENET1K_V1`).
-- If you retrain `protopnet_gaussian_iso`, note the covariance-regularization hook that
-  exists in some CaBRNet forks (`similarity_layer.regularization_loss()`) was not active
-  for the checkpoint these results were derived from (`loss_coefficients` has no
-  `volume` term) -- the vendored `training.yml` reflects that.
-
-Trained checkpoints are not included in this repository (see `checkpoints/README.md`).
+- A few `model_arch.yml` files reference a local pretrained backbone file
+  (`examples/pretrained_conv_extractors/resnet50_inat.pth` from the CaBRNet repo) that
+  isn't bundled here. CaBRNet tolerates its absence when a full checkpoint is loaded on
+  top (see "Run an ALE paradigm" below), but a *fresh* training run needs either that file
+  or an edited `weights:` value (e.g. `IMAGENET1K_V1`).
+- `protopnet_gaussian_iso`'s covariance-regularization hook
+  (`similarity_layer.regularization_loss()`) exists but was inactive for the checkpoints
+  behind the paper's results -- the vendored `training.yml` has no `volume` loss term,
+  reflecting that.
 
 ## Run an ALE paradigm
 
-`explain/run_formal_exp.py` loads `<config>/final/{model_state.pth,model_arch.yml,...}`
-(i.e. `--config` is a training `--output-dir`) and explains a batch of test-set indices
-(by default, a cached `random_indices.txt`, or all of them with `--all_indices`).
+`run_formal_exp.py` loads `<config>/final/{model_state.pth,model_arch.yml,...}` (i.e.
+`--config` is a training `--output-dir`) and explains a batch of test-set indices (by
+default a cached `random_indices.txt`, or all of them with `--all_indices`):
 
 ```bash
-# Top-k (any architecture)
-python explain/run_formal_exp.py --paradigm top_k --data flowers102 --arch protopnet \
-    --config runs/protopnet_flowers102
-
-# Original Euclidean ALE (ProtoPNet baseline, and ProtoPool on CUB-200)
-python explain/run_formal_exp.py --paradigm triangle     --data cub200 --arch protopool --config runs/protopool_cub200
-python explain/run_formal_exp.py --paradigm hypersphere  --data cub200 --arch protopool --config runs/protopool_cub200
-
-# Cosine / Spherical Cap (TesNet)
-python explain/run_formal_exp.py --paradigm cosine            --data flowers102 --arch tesnet --config runs/tesnet_flowers102
-python explain/run_formal_exp.py --paradigm cosine_hypersphere --data flowers102 --arch tesnet --config runs/tesnet_flowers102
-
-# Dimensional Projection (PIP-Net)
-python explain/run_formal_exp.py --paradigm simplex    --data flowers102 --arch pipnet --config runs/pipnet_flowers102
-python explain/run_formal_exp.py --paradigm pip_sparse --data flowers102 --arch pipnet --config runs/pipnet_flowers102
-
-# Isotropic Gaussian ProtoPNet
-python explain/run_formal_exp.py --paradigm isotropic_log             --data flowers102 --arch protopnet_gaussian_iso --config runs/protopnet_gaussian_iso_flowers102
-python explain/run_formal_exp.py --paradigm isotropic_log_hypersphere --data flowers102 --arch protopnet_gaussian_iso --config runs/protopnet_gaussian_iso_flowers102
+python explain/run_formal_exp.py --paradigm cosine --data flowers102 --arch tesnet \
+    --config runs/tesnet_flowers102
 ```
 
-Add `--all_indices` to explain the whole test set, `--overwrite` to regenerate an
-existing CSV, and `--time_bench` to print aggregate timing. `--arch` only affects the
-default checkpoint path used when `--config` is omitted -- it does not change how the
-model is loaded (that's entirely driven by `<config>/final/model_arch.yml`).
+Swap `--paradigm`/`--arch`/`--config` per the table at the top of this README to run any
+other combination. Add `--overwrite` to regenerate an existing CSV, `--time_bench` to
+print aggregate timing.
 
-Each run appends to `<config>/final/explanations/<paradigm>_explanations.csv`, with one
-row per sample: `Idx, True Label, Pred Label, Correct, Exp Size, ..., Runtime (s)`.
-`Exp Size` and `Runtime (s)` are the two quantities reported in the paper's Tables 2-4
-(absolute size; relative size is `Exp Size` normalized by $|P|$ for Top-k/PIP-Sparse, or
-by $|P|\times|L|$ for the spatial paradigms -- see the paper, Section 5).
+Each run appends to `<config>/final/explanations/<paradigm>_explanations.csv`, one row
+per sample (`Idx, True Label, Pred Label, Correct, Exp Size, ..., Runtime (s)`) --
+`Exp Size` and `Runtime (s)` are what the paper's Tables 2-4 report. Summarize a CSV with:
 
 ```bash
 python scripts/summarize_results.py runs/tesnet_flowers102/final/explanations/cosine_explanations.csv
 ```
-
-## Tests
-
-```bash
-pip install -e ".[dev]" pytest  # or just: pip install pytest
-PYTHONPATH=. pytest tests/
-```
-
-These are unit tests for the explainer classes' construction and control flow (paradigm
-validation, explanation-dict shapes, ProtoPool weight compression) -- they don't replace
-the end-to-end check of running a paradigm against a real checkpoint above, since the
-geometric correctness of the bounds depends on real prototype/feature geometry.
 
 ## Citation
 
