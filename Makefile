@@ -1,10 +1,7 @@
-.PHONY: install test train-% explain-tesnet-cosine explain-pipnet-simplex explain-gaussian-isotropic-log clean-smoke
+.PHONY: install train-% explain-tesnet-cosine explain-pipnet-simplex explain-gaussian-isotropic-log clean-smoke
 
 install:
 	pip install -e .
-
-test:
-	PYTHONPATH=. pytest tests/ -v
 
 # Usage: make train-% for % in one of:
 #   protopnet-flowers102 protopnet-oxford_iiit_pet protopnet-cub200
