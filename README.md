@@ -40,6 +40,18 @@ the exact commit behind the published `1.2` release, and installs it plus `beyon
 in editable mode. It requires Python 3.10-3.12 (CaBRNet 1.2's own constraint) and refuses
 to run outside that range rather than silently resolving an older CaBRNet version.
 
+## Examples: paper figures
+
+`examples/figures/` reproduces the paper's conceptual diagrams (Hypersphere Intersection
+Approximation in Gaussian/cosine space, the PIP-Net simplex bound) as plain headless
+scripts -- no CaBRNet, checkpoint, or dataset needed, just `pip install -e ".[figures]"`:
+
+```bash
+python examples/figures/gaussian_hia.py --out hia_gaussian.svg
+```
+
+See `examples/figures/README.md` for the full list and what each one draws.
+
 ## Repository layout
 
 ```text
@@ -59,6 +71,7 @@ beyond_l2/
 │   ├── pipnet/{cub200,flowers102,oxford_iiit_pet}/
 │   ├── protopool/cub200/             only dataset ProtoPool trained on (see Datasets)
 │   └── protopnet_gaussian_iso/{cub200,flowers102,oxford_iiit_pet}/
+├── examples/figures/                Headless scripts reproducing the paper's diagrams
 ├── scripts/
 │   ├── setup_cabrnet.sh              Clones + pins CaBRNet from GitHub, installs everything
 │   └── summarize_results.py          Aggregates *_explanations.csv into mean/std tables

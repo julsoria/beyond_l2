@@ -28,5 +28,8 @@ dependencies = [
     "tqdm>=4.66.3",
 ]
 
+[project.optional-dependencies]
+figures = ["matplotlib>=3.5"]
+
 [tool.setuptools.packages.find]
 include = ["beyond_l2_ext*"]
