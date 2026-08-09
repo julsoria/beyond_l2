@@ -1,5 +1,23 @@
 # Beyond L2
 
+<!-- TODO: replace the arXiv ID and Zenodo DOI placeholders below once assigned -->
+<div align="center">
+
+![ECML PKDD](https://img.shields.io/badge/ECML%20PKDD-26-blue)
+[![arXiv](https://img.shields.io/badge/arXiv-XXXX.XXXXX-b31b1b)](https://arxiv.org/abs/XXXX.XXXXX)
+[![Zenodo](https://img.shields.io/badge/Zenodo-10.5281%2Fzenodo.XXXXXXXX-blue)](https://doi.org/10.5281/zenodo.XXXXXXXX)
+[![License](https://img.shields.io/badge/License-LGPL%20v2.1-green)](LICENSE)
+
+🎉 **Accepted at ECML PKDD 2026** 🎉
+
+**Authors:** Jules Soria, Alban Grastien, Romain Xu-Darme, Julien Girard-Satabin, Zakaria Chihani, Daniela Cancila
+
+📧 Corresponding author: jules.soria [at] cea [dot] fr
+
+</div>
+
+---
+
 Code for **"Beyond $L_2$: Generalizing Abductive Latent Explanations to Diverse
 Prototype-Based Architectures"** (ECML PKDD 2026).
 
