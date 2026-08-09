@@ -31,5 +31,7 @@ preferred-citation:
     - family-names: Cancila
       given-names: Daniela
   conference:
-    name: "ECML PKDD"
+    name: "Joint European Conference on Machine Learning and Knowledge Discovery in Databases"
+  publisher:
+    name: "Springer"
   year: 2026

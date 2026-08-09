@@ -139,10 +139,11 @@ python scripts/summarize_results.py runs/tesnet_flowers102/final/explanations/co
 
 ```bibtex
 @inproceedings{soria2026beyond,
-  title     = {Beyond L2: Generalizing Abductive Latent Explanations to Diverse Prototype-Based Architectures},
-  author    = {Soria, Jules and Grastien, Alban and Xu-Darme, Romain and Girard-Satabin, Julien and Chihani, Zakaria and Cancila, Daniela},
-  booktitle = {ECML PKDD},
-  year      = {2026}
+  title={Beyond L2: Generalizing Abductive Latent Explanations to Diverse Prototype-Based Architectures},
+  author={Soria, Jules and Grastien, Alban and Xu-Darme, Romain and Girard-Satabin, Julien and Chihani, Zakaria and Cancila, Daniela},
+  booktitle={Joint European Conference on Machine Learning and Knowledge Discovery in Databases},
+  year={2026},
+  organization={Springer}
 }
 ```
 
