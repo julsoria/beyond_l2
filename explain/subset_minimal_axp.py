@@ -39,7 +39,7 @@ def load_model(final_model_path: Path, seed:int, device: str = "cuda:0", test_se
     # Load the model
     print("Loading the model...")
     print("Model config path: ", model_config_path)
-    model = CaBRNet.build_from_config(config=model_config_path, state_dict_path=model_path, seed=seed)
+    model = CaBRNet.build_from_config(config=str(model_config_path), state_dict_path=str(model_path), seed=seed)
     
     # --- SPARSITY ---
     if hasattr(model.classifier, 'set_sparsity_enabled'):
@@ -52,7 +52,7 @@ def load_model(final_model_path: Path, seed:int, device: str = "cuda:0", test_se
     
     # Load the test data
     print("Loading the test data...")
-    dataloaders = DM.get_dataloaders(config=(data_config_path))
+    dataloaders = DM.get_dataloaders(config=str(data_config_path))
     print(dataloaders.keys())
     # print('Evaluating the model...')
     # res = model.evaluate(dataloaders['test_set'], device='cuda:0', verbose=True)
