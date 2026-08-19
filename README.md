@@ -4,7 +4,7 @@
 <div align="center">
 
 ![ECML PKDD](https://img.shields.io/badge/ECML%20PKDD-26-blue)
-[![arXiv](https://img.shields.io/badge/arXiv-XXXX.XXXXX-b31b1b)](https://arxiv.org/abs/XXXX.XXXXX)
+[![arXiv](https://img.shields.io/badge/arXiv-2608.16773-b31b1b)](https://arxiv.org/abs/2608.16773)
 [![Zenodo](https://img.shields.io/badge/Zenodo-10.5281%2Fzenodo.XXXXXXXX-blue)](https://doi.org/10.5281/zenodo.XXXXXXXX)
 [![License](https://img.shields.io/badge/License-LGPL%20v2.1-green)](LICENSE)
 
@@ -118,7 +118,7 @@ cabrnet train --device cuda:0 --seed 42 \
   --output-dir runs/tesnet_flowers102
 ```
 
-Repeat for any `configs/<arch>/<dataset>` combination (see the layout above). Two notes:
+Repeat for any `configs/<arch>/<dataset>` combination (see the layout above). A few notes:
 
 - A few `model_arch.yml` files reference a local pretrained backbone file
   (`examples/pretrained_conv_extractors/resnet50_inat.pth` from the CaBRNet repo) that
@@ -129,6 +129,10 @@ Repeat for any `configs/<arch>/<dataset>` combination (see the layout above). Tw
   (`similarity_layer.regularization_loss()`) exists but was inactive for the checkpoints
   behind the paper's results -- the vendored `training.yml` has no `volume` loss term,
   reflecting that.
+- `protopool/cub200`'s `model_arch.yml` declares `num_prototypes: 220`, CaBRNet's own
+  starting point -- ProtoPool prunes near-duplicate prototypes after training, so a fresh
+  run will end up with fewer (the released checkpoint has 218). This only matters if you
+  hand-edit `num_prototypes`; loading a checkpoint always uses its own saved count.
 
 ## Run an ALE paradigm
 
