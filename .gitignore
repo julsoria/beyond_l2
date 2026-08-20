@@ -4,3 +4,4 @@ __pycache__/
 runs/
 *.egg-info/
 cabrnet-src/
+*.zip
